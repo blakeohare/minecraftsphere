@@ -57,6 +57,35 @@ window.addEventListener('load', () => {
     };
 
     let generateSliceGrid = (z, diameter) => {
+        let slice;
+        if (z === 1 || z === diameter) {
+            // Don't remove the interior if it's the slice at the top or bottom.
+            slice = generateSliceCircle(z, diameter, true);
+        } else {
+            // Determeine which z value for the slice that is more towards the exterior.
+            let az = 2 * (z - .5) / diameter - 1;
+            let adjacent = z + (az > 0 ? 1 : -1);
+
+            // Generate both the current slice and the next slice towards the exterior.
+            slice = generateSliceCircle(z, diameter);
+            let nextSlice = generateSliceCircle(adjacent, diameter);
+
+            // Because the interior is empty, we need to fill back in some of 
+            // the blocks that were removed since the next slice may not 
+            // necessary cover it.
+            for (let x = 0; x < diameter; x++) {
+                for (let y = 0; y < diameter; y++) {
+                    if (nextSlice[x][y] === 0 && slice[x][y] === -1) {
+                        slice[x][y] = 1;
+                    }
+                }
+            }
+        }
+
+        return slice.map(row => row.map(c => c === 1));
+    };
+
+    let generateSliceCircle = (z, diameter, skipInteriorRemoval) => {
 
         let grid = makeEmptyGrid(diameter);
 
@@ -93,29 +122,31 @@ window.addEventListener('load', () => {
             }
         }
 
-        // anything that isn't touching the edge and isn't touching a non-filled 
-        // value on a non-diagonal side should be toggled off.
-        let neighborOffsets = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-        for (let x = 1; x < diameter - 1; x++) {
-            for (let y = 1; y < diameter - 1; y++) {
-                if (grid[x][y] === 1) {
-                    
-                    let isExterior = false;
-                    for (let [ox, oy] of neighborOffsets) {
-                        let nx = ox + x;
-                        let ny = oy + y;
-                        if (grid[nx][ny] === 0) {
-                            isExterior = true;
+        if (!skipInteriorRemoval) {
+            // anything that isn't touching the edge and isn't touching a non-filled 
+            // value on a non-diagonal side should be toggled off.
+            let neighborOffsets = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+            for (let x = 1; x < diameter - 1; x++) {
+                for (let y = 1; y < diameter - 1; y++) {
+                    if (grid[x][y] === 1) {
+                        
+                        let isExterior = false;
+                        for (let [ox, oy] of neighborOffsets) {
+                            let nx = ox + x;
+                            let ny = oy + y;
+                            if (grid[nx][ny] === 0) {
+                                isExterior = true;
+                            }
                         }
-                    }
-                    if (!isExterior) {
-                        grid[x][y] = -1;
+                        if (!isExterior) {
+                            grid[x][y] = -1;
+                        }
                     }
                 }
             }
         }
 
-        return grid.map(row => row.map(c => c === 1));
+        return grid;
     };
 
     let updateUi = () => {
