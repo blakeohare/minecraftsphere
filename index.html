@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Minecraft Sphere Generator</title>
+        <script src="sphere.js"></script>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Minecraft Sphere Generator</h1>
+        <div>
+            <div>
+                Diameter: <input id="diameter" type="number"> 
+            </div>
+            <div>
+                <button id="genbtn">Generate</button>
+            </div>
+        </div>
+        
+        <div id="error"></div>
+
+        <div id="slicepanel" style="display: none">
+            <div>
+                <button id="prevbtn">Prev</button>
+                <span id="slicenum"></span>
+                <button id="nextbtn">Next</button>
+            </div>
+            <div>
+                <table id="grid"></table>
+            </div>
+        </div>
+    </body>
+</html>
